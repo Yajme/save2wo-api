@@ -1,16 +1,15 @@
 // Import the functions you need from the SDKs you need
 
 import { initializeApp } from "firebase/app";
-import { Firestore,doc,setDoc,collection,getDocs, getFirestore, query,where } from "firebase/firestore";
+import { Firestore,doc,setDoc,collection,getDocs, getFirestore, query,where, orderBy, limitToLast } from "firebase/firestore";
 import dotenv from 'dotenv';
-//import history from './thresholds.json'  assert { type: 'json' };
+import { experimentalSetDeliveryMetricsExportedToBigQueryEnabled } from "firebase/messaging/sw";
+//import history from './contamination.json'  assert { type: 'json' };
 
 
 
 dotenv.config();
-// TODO: Add SDKs for Firebase products that you want to use
 
-// https://firebase.google.com/docs/web/setup#available-libraries
 
 
 // Your web app's Firebase configuration
@@ -57,12 +56,12 @@ const getData = async(collectionName)=>{
         console.log(`${error}`);
     }
 };
-const getDataByParam = async(collectionName,Param,key)=>{
+const getDataByParam = async(collectionName,Param,key,Logic)=>{
     try{
         const collectionRef = collection(firestoreDb,collectionName);
         const finalData = [];
         const q = query(collectionRef,
-            where(key,"==",Param)
+            where(key,Logic,Param)
         );
         
         const docSnap = await getDocs(q);
@@ -78,11 +77,81 @@ const getDataByParam = async(collectionName,Param,key)=>{
         console.log(`${error}`);
     }
 };
+
+const getDataByRange = async(collectionName,key,param_1,param_2)=>{
+    try{
+        const collectionRef = collection(firestoreDb,collectionName);
+        const finalData = [];
+        const q = query(collectionRef,
+            where(key,">=",new Date(param_1)),
+            where(key,"<=",new Date(param_2))
+        );
+        
+        const docSnap = await getDocs(q);
+        
+        docSnap.forEach((doc)=>{
+            finalData.push(doc.data());
+            
+        });
+
+        return finalData;
+
+    }catch(error){
+        console.log(`${error}`);
+    }
+};
+
+const getFilteredData = async(collectionName,Param,key,Logic,Limit,order)=>{
+    try{
+        
+        const collectionRef = collection(firestoreDb,collectionName);
+        const finalData = [];
+        let q;
+        if(Limit != 0){
+             q = query(collectionRef,
+                where(key,Logic,Param),
+                orderBy(key,order),
+                limitToLast(Limit)
+            );
+            console.log(key,Logic,Param);
+        }else{
+             q = query(collectionRef,
+                where(key,Logic,Param),
+                orderBy(key,order)
+            );
+            console.log(key,Logic,Param);
+        }
+        
+        
+        const docSnap = await getDocs(q);
+        
+        docSnap.forEach((doc)=>{
+            finalData.push(doc.data());
+            
+        });
+
+        return finalData;
+
+    }catch(error){
+        console.log(`${error}`);
+        throw error;
+    }
+}
 const uploadData = async()=>{
     try{
+        /*
         for (const key in history) {
             if (history.hasOwnProperty(key)) {
               const document = doc(firestoreDb,"threshold",key);
+              let dataUpload = await setDoc(document,history[key]);
+            }
+          }
+            */
+
+          for (const key in history) {
+            if (history.hasOwnProperty(key)) {
+              history[key].timestamp = new Date(history[key].timestamp);
+              const document = doc(firestoreDb,"contamination",key);
               let dataUpload = await setDoc(document,history[key]);
             }
           }
@@ -92,4 +161,12 @@ const uploadData = async()=>{
 }
 const getFirebaseApp = () => app;
 
-export default {initializeFirebase,getFirebaseApp,getData,getDataByParam};
+export default {
+    initializeFirebase,
+    getFirebaseApp,
+    getData,
+    getDataByParam,
+    getDataByRange,
+    getFilteredData,
+
+};

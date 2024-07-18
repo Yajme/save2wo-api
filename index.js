@@ -2,11 +2,18 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import firebase from './controller/firebase.js';
-import historyRoute from './routes/history.js'
+import historyRoute from './routes/history.js';
+import contaminationRoute from './routes/contamination.js';
+import thresholdRoute from './routes/threshold.js';
+import loginRoute from './routes/login.js';
+import bodyParser from 'body-parser';
 dotenv.config();
 const app = express();
 const port = process.env.PORT;
+
+
 app.use(express.json());
+app.use(express.urlencoded({extended:true}));
 firebase.initializeFirebase();
 app.get('/', async (req, res) => {
     const data = 'hello';
@@ -16,7 +23,16 @@ app.get('/', async (req, res) => {
 });
 
 app.use('/history/',historyRoute);
+app.use('/contamination', contaminationRoute);
+app.use('/threshold',thresholdRoute);
+app.use('/login',loginRoute);
 
+app.post('/post-test',(req,res)=>{
+
+    console.log(req.body);
+
+    res.send(req.body);
+})
 
 app.get('*', (req, res, next) => {
     const requestedURL = req.url;

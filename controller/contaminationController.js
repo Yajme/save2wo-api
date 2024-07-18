@@ -1,6 +1,6 @@
 import firebase from './firebase.js';
+const COLLECTION = 'contamination';
 
-const COLLECTION = "fish_kill_history";
 const getAll = async (req,res,next)=>{
     try{
         const data = await firebase.getData(COLLECTION);
@@ -9,7 +9,6 @@ const getAll = async (req,res,next)=>{
         console.log(error);
         next(error);
     }
-    
 }
 
 const getByCage = async (req,res,next)=>{
@@ -23,6 +22,16 @@ const getByCage = async (req,res,next)=>{
     }
 }
 
+const getByContaminationLevel = async (req,res,next)=>{
+    try{
+        const contamination = req.params.level;
+        const data = await firebase.getDataByParam(COLLECTION,contamination,"contamination","==");
+        res.send(data);
+    }catch(error){
+        console.log(error);
+        next(error);
+    }
+}
 const getByDateRange = async (req,res,next) =>{
     try{
         const fromDate = req.params.fromDate;
@@ -55,21 +64,34 @@ const getBeforeDate = async (req,res,next)=>{
     }
 }
 
-const getLatestFishKill = async (req,res,next)=>{
-    try{
-        const data = await firebase.getFilteredData(COLLECTION,new Date(),"timestamp","<=",parseFloat(1),"asc");
-        res.send(data);
+    const getLatestRecordLimit = async(req,res,next)=>
+        {
+            try{
+            const date = new Date();
+            const limit = req.params.limit;
+            const data = await firebase.getFilteredData(COLLECTION,date,"timestamp","<=",parseFloat(limit),"asc");
+            res.send(data);
+            }catch(error){
+                console.log(error);
+                next(error);
+            }
+        }
+/**
+ * try{
+
     }catch(error){
         console.log(error);
         next(error);
     }
-}
+ */
 
-export default {
+
+export default{
     getAll,
     getByCage,
+    getByContaminationLevel,
     getByDateRange,
     getAfterDate,
     getBeforeDate,
-    getLatestFishKill
+    getLatestRecordLimit
 };
