@@ -4,7 +4,6 @@ const Login = async (req,res,next) =>{
     try{
         const username = req.body.username;
         const password = req.body.password;
-        
         const credential = await firebase.getDataByParam(COLLECTION,username,"username","==");
         if(credential.length === 0) throw new Error('Invalid username');
         const credential_password = credential[0]["password"];

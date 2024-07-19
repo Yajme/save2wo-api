@@ -1,17 +1,18 @@
 
 import express from 'express';
 import dotenv from 'dotenv';
+import cors from 'cors';
 import firebase from './controller/firebase.js';
 import historyRoute from './routes/history.js';
 import contaminationRoute from './routes/contamination.js';
 import thresholdRoute from './routes/threshold.js';
 import loginRoute from './routes/login.js';
-import bodyParser from 'body-parser';
+
 dotenv.config();
 const app = express();
 const port = process.env.PORT;
 
-
+app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({extended:true}));
 firebase.initializeFirebase();
