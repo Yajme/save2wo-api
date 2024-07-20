@@ -1,9 +1,9 @@
 // Import the functions you need from the SDKs you need
 
 import { initializeApp } from "firebase/app";
-import { Firestore,doc,setDoc,collection,getDocs, getFirestore, query,where, orderBy, limitToLast } from "firebase/firestore";
+import { Firestore,doc,setDoc,collection,getDocs, getFirestore, query,where, orderBy, limitToLast, AggregateField,sum,getAggregateFromServer, count} from "firebase/firestore";
 import dotenv from 'dotenv';
-import { experimentalSetDeliveryMetricsExportedToBigQueryEnabled } from "firebase/messaging/sw";
+
 //import history from './contamination.json'  assert { type: 'json' };
 
 
@@ -137,6 +137,40 @@ const getFilteredData = async(collectionName,Param,key,Logic,Limit,order)=>{
         throw error;
     }
 }
+const getSum = async(collectionName,Param,key)=>{
+    try{
+        const collectionRef = collection(firestoreDb,collectionName);
+        let Where;
+        if(typeof Param === "object"){
+            Where = [];
+            Param.forEach((query)=>{
+                console.log(`${query.key} ${query.param}`)
+                Where.push(
+                    where(query.key,query.logic,query.param)
+                );
+            })
+        }else{
+            Where = [
+                where(key,"==",Param)
+            ]
+        }
+        const q = query(
+            collectionRef,
+            ...Where
+        )
+        const snapshot = await getAggregateFromServer(
+            q,
+            {
+                total: sum(key),
+                totalRecord : count(key)
+            },
+        );
+
+        return snapshot.data();
+    }catch(error){
+        throw error;
+    }
+}
 const uploadData = async()=>{
     try{
         /*
@@ -168,5 +202,5 @@ export default {
     getDataByParam,
     getDataByRange,
     getFilteredData,
-
+    getSum
 };

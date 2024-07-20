@@ -65,11 +65,51 @@ const getLatestFishKill = async (req,res,next)=>{
     }
 }
 
+const getTotalFishKill = async (req,res,next)=>{
+    try{
+        const currentDate = new Date();
+        const dateFirstDay = new Date().setDate(1);
+        const query = [
+            {
+            key: "timestamp",
+            param: new Date(dateFirstDay),
+            logic: ">="
+            },
+            {
+                key:"timestamp",
+                param: currentDate,
+                logic:"<="
+            }
+
+        ];
+        const data = await firebase.getSum(COLLECTION,query,"dead_fish");
+        const parsedData = [
+            {
+                contamination:"",
+                dead_fish: data.total,
+                cage : 0,
+                timestamp : new Date(),
+                water_quality : {
+                    NO2 : 0.0,
+                    Temperature : 0,
+                    pH : 0,
+                    DO : 0
+                }
+            }
+        ]
+
+        res.send(parsedData);
+    }catch(error){
+        console.log(error);
+        next(error);
+    }
+}
 export default {
     getAll,
     getByCage,
     getByDateRange,
     getAfterDate,
     getBeforeDate,
-    getLatestFishKill
+    getLatestFishKill,
+    getTotalFishKill
 };

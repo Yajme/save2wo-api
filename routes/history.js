@@ -8,4 +8,5 @@ router.get("/fish-kill/from/:fromDate/to/:toDate",historyController.getByDateRan
 router.get("/fish-kill/after/:date",historyController.getAfterDate);
 router.get("/fish-kill/before/:date",historyController.getBeforeDate);
 router.get("/fish-kill/latest",historyController.getLatestFishKill);
+router.get("/fish-kill/total",historyController.getTotalFishKill);
 export default router;
