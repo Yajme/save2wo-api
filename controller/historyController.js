@@ -88,7 +88,10 @@ const getTotalFishKill = async (req,res,next)=>{
                 contamination:"",
                 dead_fish: data.total,
                 cage : 0,
-                timestamp : new Date(),
+                timestamp : {
+                    seconds : new Date().setDate(1),
+                    nanoseconds : 0
+                },
                 water_quality : {
                     NO2 : 0.0,
                     Temperature : 0,
