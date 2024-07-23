@@ -7,6 +7,7 @@ import historyRoute from './routes/history.js';
 import contaminationRoute from './routes/contamination.js';
 import thresholdRoute from './routes/threshold.js';
 import loginRoute from './routes/login.js';
+import weatherRoute from './routes/weather.js';
 
 dotenv.config();
 const app = express();
@@ -27,6 +28,7 @@ app.use('/history/',historyRoute);
 app.use('/contamination', contaminationRoute);
 app.use('/threshold',thresholdRoute);
 app.use('/login',loginRoute);
+app.use('/weather', weatherRoute);
 
 app.post('/post-test',(req,res)=>{
 
