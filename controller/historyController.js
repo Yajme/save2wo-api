@@ -93,9 +93,9 @@ const getTotalFishKill = async (req,res,next)=>{
                     nanoseconds : 0
                 },
                 water_quality : {
-                    NO2 : 0.0,
+                    NO2 : 0.00001,
                     Temperature : 0,
-                    pH : 0,
+                    pH : 0.0001,
                     DO : 0
                 }
             }
