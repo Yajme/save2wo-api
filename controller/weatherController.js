@@ -10,7 +10,7 @@ const getWeather = async (req,res,next)=>{
 
 
 try{
-    const url = `https://api.weatherapi.com/v1/current.json?key=${apiKey}&q=Taal&aqi=no`;
+    const url = `https://api.weatherapi.com/v1/forecast.json?key=${apiKey}&q=Taal&days=6&aqi=no&alerts=no`;
     const response = await axios.get(url);
     console.log(response.data);
     res.json(response.data);
