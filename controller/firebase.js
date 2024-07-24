@@ -1,7 +1,7 @@
 // Import the functions you need from the SDKs you need
 
 import { initializeApp } from "firebase/app";
-import { Firestore,doc,setDoc,collection,getDocs, getFirestore, query,where, orderBy, limitToLast, AggregateField,sum,getAggregateFromServer, count} from "firebase/firestore";
+import { Firestore,doc,setDoc,collection,getDocs, getFirestore, query,where, orderBy, limitToLast, AggregateField,sum,getAggregateFromServer, count, updateDoc} from "firebase/firestore";
 import dotenv from 'dotenv';
 
 //import history from './contamination.json'  assert { type: 'json' };
@@ -39,6 +39,19 @@ const initializeFirebase = ()=>{
     }
     
 }
+const updateData = async(collectionName,newData,identifier)=>{
+    try{
+        const collectionRef = collection(firestoreDb,collectionName);
+        const docRef = doc(collectionRef,identifier);
+        
+        await updateDoc(docRef,newData);
+
+        return true;
+    }catch(error){
+        console.log(`${error}`);
+        throw error;
+    }
+}
 const getData = async(collectionName)=>{
     try{
         const collectionRef = collection(firestoreDb,collectionName);
@@ -48,6 +61,28 @@ const getData = async(collectionName)=>{
 
         docSnap.forEach((doc)=>{
             finalData.push(doc.data());
+        });
+
+        return finalData;
+
+    }catch(error){
+        console.log(`${error}`);
+    }
+};
+const getDataByParamWithID = async(collectionName,Param,key,Logic)=>{
+    try{
+        const collectionRef = collection(firestoreDb,collectionName);
+        const finalData = [];
+        const q = query(collectionRef,
+            where(key,Logic,Param)
+        );
+        
+        const docSnap = await getDocs(q);
+        
+        docSnap.forEach((doc)=>{
+            const data = {[doc.id]: doc.data()};
+            finalData.push(data);
+            
         });
 
         return finalData;
@@ -202,5 +237,7 @@ export default {
     getDataByParam,
     getDataByRange,
     getFilteredData,
-    getSum
+    getSum,
+    getDataByParamWithID,
+    updateData
 };
