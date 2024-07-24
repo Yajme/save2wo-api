@@ -9,12 +9,13 @@ const Login = async (req,res,next) =>{
         const credential_password = credential[0]["password"];
         if(password !== credential_password) throw new Error('Invalid password');
 
-        const response ={
+        const response ={   
             status : "authorized",
             time : new Date(),
             admin : true,
             firstName : credential[0]["firstName"],
-            lastName : credential[0]["lastName"]
+            lastName : credential[0]["lastName"],
+            profile_picture : credential[0]["profile_picture"]
         }
         res.send(response);
         
