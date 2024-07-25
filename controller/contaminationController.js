@@ -1,9 +1,22 @@
 import firebase from './firebase.js';
+import cache from 'memory-cache';
 const COLLECTION = 'contamination';
+const one_hour = 3600000 *1.5;
+const cacheData= (data,key)=>{
+    try{
+        cache.put(key,data,one_hour);
+    }catch(error){
+        console.error(error);
+    }
+};
 
 const getAll = async (req,res,next)=>{
     try{
-        const data = await firebase.getData(COLLECTION);
+        const key = 'all_contamination';
+        let data = cache.get(key);
+        if(!data){
+            cacheData( data = await firebase.getData(COLLECTION),key);
+        }
         res.send(data);
     }catch(error){
         console.log(error);

@@ -51,10 +51,9 @@ const changePassword = async (req,res,next)=>{
 
         const key = Object.keys(credential)[0];
         
-        console.log(key);
-        console.log(credential);
+
         const credential_password = credential[key]["password"];
-        console.log(credential_password);
+
         if(old_password !== credential_password) throw new Error('Invalid password');
         const newPassword = ({password: new_password});
        const updatePass = await firebase.updateData(COLLECTION,newPassword,key);

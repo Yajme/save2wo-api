@@ -8,11 +8,13 @@ import contaminationRoute from './routes/contamination.js';
 import thresholdRoute from './routes/threshold.js';
 import loginRoute from './routes/login.js';
 import weatherRoute from './routes/weather.js';
+import mcache from 'memory-cache';
 
 dotenv.config();
 const app = express();
 const port = process.env.PORT;
 
+const cache = new mcache.Cache();
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({extended:true}));

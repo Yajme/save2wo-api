@@ -1,9 +1,23 @@
 import firebase from './firebase.js';
-
+import cache from 'memory-cache';
 const COLLECTION = "fish_kill_history";
+const one_hour = 3600000*1.5;
+const cacheData= (data,key)=>{
+    try{
+        cache.put(key,data,one_hour);
+    }catch(error){
+        console.error(error);
+    }
+};
 const getAll = async (req,res,next)=>{
     try{
-        const data = await firebase.getData(COLLECTION);
+        
+        const key = 'all_history';
+        let data = cache.get(key);
+        if(!data){
+            data = await firebase.getData(COLLECTION);
+            cacheData(data,key);
+        }
         res.send(data);
     }catch(error){
         console.log(error);
@@ -15,7 +29,13 @@ const getAll = async (req,res,next)=>{
 const getByCage = async (req,res,next)=>{
     try{
         const cage = parseFloat(req.params.cagenumber);
-        const data = await firebase.getDataByParam(COLLECTION,cage,"cage","==");
+        const key = `cage_${cage}`;
+        let data = cache.get(key);
+        if(!data){
+            data = await firebase.getDataByParam(COLLECTION,cage,"cage","==");
+            cacheData(data,key);
+        }
+    
         res.send(data);
     }catch(error){
         console.log(error);
@@ -27,7 +47,13 @@ const getByDateRange = async (req,res,next) =>{
     try{
         const fromDate = req.params.fromDate;
         const toDate = req.params.toDate;
-        const data = await firebase.getDataByRange(COLLECTION,"timestamp",fromDate,toDate);
+
+        const key = `history_${fromDate}_${toDate}`;
+        let data = cache.get(key);
+        if(!data){
+            cacheData(data = await firebase.getDataByRange(COLLECTION,"timestamp",fromDate,toDate),key);
+        }
+
         res.send(data);
     }catch(error){
         next(error);
@@ -57,7 +83,11 @@ const getBeforeDate = async (req,res,next)=>{
 
 const getLatestFishKill = async (req,res,next)=>{
     try{
-        const data = await firebase.getFilteredData(COLLECTION,new Date(),"timestamp","<=",parseFloat(1),"asc");
+        const key = 'history_latest';
+        let data = cache.get(key);
+        if(!data){
+            cacheData(data = await firebase.getFilteredData(COLLECTION,new Date(),"timestamp","<=",parseFloat(1),"asc"),key);
+        }
         res.send(data);
     }catch(error){
         console.log(error);
